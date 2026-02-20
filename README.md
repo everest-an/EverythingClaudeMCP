@@ -512,7 +512,7 @@ Rules are sourced from [affaan-m/everything-claude-code](https://github.com/affa
 ## Authors
 
 - **[everest-an](https://github.com/everest-an)** — Creator & Lead Developer
-- **[EdwinHao](https://github.com/edwinhao)** — Co-Creator
+- **[EdwinHao](https://github.com/edwinhao)** — Co-Creator & Architect
 
 ## License
 
