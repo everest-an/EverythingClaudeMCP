@@ -202,6 +202,88 @@ Add to your Claude Code MCP configuration (`~/.config/claude-code/mcp.json` or p
 
 ---
 
+## Testing
+
+### Run All Unit Tests
+
+```bash
+python -m pytest tests/unit/ -v
+```
+
+Expected output:
+```
+tests/unit/test_api.py::test_health_endpoint PASSED
+tests/unit/test_api.py::test_modules_list_endpoint PASSED
+tests/unit/test_chat_template.py::test_build_rule_encoding_prompt_structure PASSED
+tests/unit/test_config.py::test_all_profiles_registered PASSED
+tests/unit/test_config.py::test_qwen3_4b_profile PASSED
+tests/unit/test_delta.py::test_needs_recompile_first_time PASSED
+tests/unit/test_hashing.py::test_content_hash_is_sha256 PASSED
+tests/unit/test_indexer.py::test_build_index PASSED
+tests/unit/test_indexer.py::test_query_returns_top_k PASSED
+tests/unit/test_markdown_parser.py::test_parse_frontmatter_markdown PASSED
+tests/unit/test_realignment.py::test_compute_realignment_tied_weights PASSED
+tests/unit/test_scanner.py::test_scan_everything_claude_code PASSED
+tests/unit/test_session.py::test_create_new_session PASSED
+tests/unit/test_tensor_io.py::test_save_and_load_roundtrip PASSED
+tests/unit/test_types.py::test_parsed_module_auto_hash PASSED
+...
+============================= 59 passed ==============================
+```
+
+### Run Specific Test Module
+
+```bash
+# Only config tests
+python -m pytest tests/unit/test_config.py -v
+
+# Only realignment tests
+python -m pytest tests/unit/test_realignment.py -v
+
+# Only scanner tests (requires vendor/everything-claude-code submodule)
+python -m pytest tests/unit/test_scanner.py -v
+```
+
+### Test Coverage Map
+
+| Test File | Module Under Test | Tests |
+| --------- | ----------------- | ----- |
+| `test_config.py` | `src/adapter/config.py` | Model profiles, auto-detect, device/dtype resolution |
+| `test_realignment.py` | `src/adapter/realignment.py` | Tied/untied weights, shape, normalization, batch, dtype |
+| `test_chat_template.py` | `src/adapter/chat_template.py` | All 4 prompt builders, structure and content |
+| `test_markdown_parser.py` | `src/shared/markdown_parser.py` | Frontmatter, plain MD, hooks.json, empty/missing files |
+| `test_types.py` | `src/shared/types.py` | Auto-hash, explicit hash, default metadata |
+| `test_hashing.py` | `src/shared/hashing.py` | Determinism, uniqueness, SHA-256 format |
+| `test_tensor_io.py` | `src/shared/tensor_io.py` | Save/load roundtrip, directory creation, metadata |
+| `test_scanner.py` | `src/compiler/scanner.py` | Full repo scan (128 modules), sort order, missing repo |
+| `test_indexer.py` | `src/compiler/indexer.py` | Build, query top-k, type filter, min_score, save/load |
+| `test_delta.py` | `src/compiler/delta.py` | First compile, unchanged, changed, deleted modules |
+| `test_session.py` | `src/gateway/session.py` | Create, get, record query, TTL expiry, eviction |
+| `test_api.py` | `src/api/app.py` | Health endpoint, modules list endpoint |
+
+### Verify Compiled Tensors
+
+After compilation, validate all tensor files:
+
+```bash
+python scripts/verify_tensors.py
+```
+
+This checks:
+
+- Tensor shapes match model dimensions
+- No NaN or Inf values
+- Required metadata fields present
+- Cross-reference with index manifest
+
+### TypeScript Type Check
+
+```bash
+cd mcp-server && npx tsc --noEmit
+```
+
+---
+
 ## API Reference
 
 ### `POST /v1/latent/query`
