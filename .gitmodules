@@ -1,0 +1,6 @@
+[submodule "vendor/LatentMAS"]
+	path = vendor/LatentMAS
+	url = https://github.com/Gen-Verse/LatentMAS.git
+[submodule "vendor/everything-claude-code"]
+	path = vendor/everything-claude-code
+	url = https://github.com/affaan-m/everything-claude-code.git

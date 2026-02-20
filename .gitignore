@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Compiled tensors (generated artifacts)
+data/tensors/**/*.safetensors
+data/index/*.npy
+data/cache/
+
+# Node.js
+node_modules/
+mcp-server/dist/
+mcp-server/node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.local
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Model cache (optional, can be large)
+data/model-cache/
+data/model-onnx*/
