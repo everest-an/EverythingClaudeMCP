@@ -511,8 +511,8 @@ Rules are sourced from [affaan-m/everything-claude-code](https://github.com/affa
 
 ## Authors
 
-- **everest-an** — Creator & Lead Developer
-- **EdwinHao** — Co-Creator
+- **[everest-an](https://github.com/everest-an)** — Creator & Lead Developer
+- **[EdwinHao](https://github.com/edwinhao)** — Co-Creator
 
 ## License
 
