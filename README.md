@@ -509,6 +509,11 @@ Rules are sourced from [affaan-m/everything-claude-code](https://github.com/affa
 
 ---
 
+## Authors
+
+- **everest-an** — Creator & Lead Developer
+- **EdwinHao** — Co-Creator
+
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE).
