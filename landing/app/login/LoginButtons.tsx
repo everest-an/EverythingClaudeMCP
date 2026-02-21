@@ -1,6 +1,5 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import { useState } from "react";
 
 export default function LoginButtons({
@@ -9,14 +8,52 @@ export default function LoginButtons({
   callbackUrl: string;
 }) {
   const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSignIn = (provider: string) => {
+  const handleSignIn = async (provider: string) => {
     setLoading(provider);
-    signIn(provider, { callbackUrl });
+    setError(null);
+    try {
+      // Step 1: Get CSRF token (same as next-auth/react signIn)
+      const csrfRes = await fetch("/api/auth/csrf");
+      const { csrfToken } = await csrfRes.json();
+
+      // Step 2: POST to signin endpoint with X-Auth-Return-Redirect
+      const res = await fetch(`/api/auth/signin/${provider}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-Auth-Return-Redirect": "1",
+        },
+        body: new URLSearchParams({
+          csrfToken,
+          callbackUrl,
+          json: "true",
+        }),
+      });
+
+      const data = await res.json();
+
+      // Step 3: Redirect to OAuth provider
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError("No redirect URL returned");
+        setLoading(null);
+      }
+    } catch (e) {
+      setError(String(e));
+      setLoading(null);
+    }
   };
 
   return (
     <div className="space-y-3">
+      {error && (
+        <div className="text-red-400 text-[12px] p-2 rounded bg-red-500/10">
+          {error}
+        </div>
+      )}
       <button
         onClick={() => handleSignIn("google")}
         disabled={loading !== null}
