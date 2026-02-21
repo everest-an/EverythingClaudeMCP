@@ -1,4 +1,4 @@
-"""FastAPI route handlers for the Latent-Link API."""
+"""FastAPI route handlers for the AwesomeContext API."""
 
 from __future__ import annotations
 
@@ -23,6 +23,37 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def _build_metadata_prompt(retrieved, tool_name: str) -> str:
+    """Build a structured text response from module metadata (fallback when no content)."""
+    lines = [f"# Matched Modules ({tool_name})\n"]
+    for i, m in enumerate(retrieved, 1):
+        lines.append(f"## {i}. {m.name} [{m.module_type}] (score: {m.score:.3f})")
+        lines.append(f"ID: {m.module_id}")
+        lines.append(f"Description: {m.description}")
+        lines.append(f"Original tokens: {m.original_token_count}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _build_source_prompt(retrieved, tool_name: str, content_store) -> str:
+    """Build a rich prompt with actual source markdown content from the content store."""
+    sections = []
+    for i, m in enumerate(retrieved, 1):
+        source = content_store.get(m.module_id)
+        if source:
+            sections.append(
+                f"# [{m.module_type}] {m.name} (score: {m.score:.3f})\n\n{source}"
+            )
+        else:
+            sections.append(
+                f"# [{m.module_type}] {m.name} (score: {m.score:.3f})\n"
+                f"ID: {m.module_id}\n"
+                f"Description: {m.description}\n"
+                f"Original tokens: {m.original_token_count}"
+            )
+    return "\n\n---\n\n".join(sections)
+
+
 @router.post("/latent/query", response_model=LatentQueryResponse)
 async def latent_query(body: LatentQueryRequest, request: Request):
     """Main query endpoint. Handles all three MCP tool types:
@@ -33,10 +64,11 @@ async def latent_query(body: LatentQueryRequest, request: Request):
     """
     t_start = time.perf_counter()
 
-    intent_encoder = request.app.state.intent_encoder
     retriever = request.app.state.retriever
-    decoder = request.app.state.decoder
     session_mgr = request.app.state.session_manager
+    retrieval_only = getattr(request.app.state, "retrieval_only", False)
+    intent_encoder = request.app.state.intent_encoder if not retrieval_only else None
+    decoder = request.app.state.decoder if not retrieval_only else None
 
     # Route based on tool type
     if body.tool_name == "skill_injector" and body.skill_id:
@@ -47,7 +79,8 @@ async def latent_query(body: LatentQueryRequest, request: Request):
         retrieval_ms = (time.perf_counter() - t_retrieve) * 1000
     else:
         # Intent-based retrieval
-        query_text = body.code if body.tool_name == "compliance_verify" else body.intent
+        # compliance_verify prefers code, but falls back to intent for keyword mode
+        query_text = (body.code or body.intent) if body.tool_name == "compliance_verify" else body.intent
         if not query_text:
             return LatentQueryResponse(
                 dense_prompt="Error: no intent or code provided for query.",
@@ -64,37 +97,66 @@ async def latent_query(body: LatentQueryRequest, request: Request):
                 matched_modules=[],
             )
 
-        t_encode = time.perf_counter()
-        query_vec = intent_encoder.encode(query_text)
-        encode_ms = (time.perf_counter() - t_encode) * 1000
-        logger.debug("Intent encoding: %.1fms", encode_ms)
-
         t_retrieve = time.perf_counter()
         type_filter = body.module_type_filter
         if body.tool_name == "compliance_verify" and not type_filter:
             type_filter = "rule"  # Default to rules for compliance checks
 
-        retrieved = retriever.retrieve(
-            query_vec,
-            top_k=body.top_k,
-            module_type_filter=type_filter,
-        )
+        # Exclude hooks/contexts from intent queries (they're lifecycle events,
+        # not knowledge modules, and their short content causes hub bias)
+        exclude = None
+        if body.tool_name == "architect_consult" and not type_filter:
+            exclude = {"hook", "context"}
+
+        if intent_encoder:
+            # Full mode: encode intent → cosine search
+            t_encode = time.perf_counter()
+            query_vec = intent_encoder.encode(query_text)
+            encode_ms = (time.perf_counter() - t_encode) * 1000
+            logger.debug("Intent encoding: %.1fms", encode_ms)
+
+            retrieved = retriever.retrieve(
+                query_vec,
+                top_k=body.top_k,
+                module_type_filter=type_filter,
+                query_text=query_text,
+                exclude_types=exclude,
+            )
+        else:
+            # Retrieval-only mode: keyword-based search on index metadata
+            retrieved = retriever.retrieve_by_keywords(
+                query_text=query_text,
+                top_k=body.top_k,
+                module_type_filter=type_filter,
+                exclude_types=exclude,
+            )
         retrieval_ms = (time.perf_counter() - t_retrieve) * 1000
 
-    # Decode latent states to dense text
+    # Decode latent states to dense text (or return source content)
     t_decode = time.perf_counter()
-    if retrieved:
-        dense_prompt = decoder.decode(retrieved, tool_name=body.tool_name)
-    else:
+    content_store = getattr(request.app.state, "content_store", None)
+    if not retrieved:
         dense_prompt = "No matching modules found for this query."
+    elif decoder:
+        dense_prompt = decoder.decode(retrieved, tool_name=body.tool_name)
+    elif content_store and len(content_store) > 0:
+        # Retrieval-only with content store: return actual source markdown
+        dense_prompt = _build_source_prompt(retrieved, body.tool_name, content_store)
+    else:
+        # Fallback: metadata-only response
+        dense_prompt = _build_metadata_prompt(retrieved, body.tool_name)
     decode_ms = (time.perf_counter() - t_decode) * 1000
 
     total_ms = (time.perf_counter() - t_start) * 1000
 
     # Calculate token savings
     original_tokens = sum(m.original_token_count for m in retrieved)
-    dense_tokens = request.app.state.wrapper.get_token_count(dense_prompt)
-    tokens_saved = max(0, original_tokens - dense_tokens)
+    wrapper = request.app.state.wrapper
+    if wrapper:
+        dense_tokens = wrapper.get_token_count(dense_prompt)
+    else:
+        dense_tokens = len(dense_prompt.split()) * 1.3  # rough estimate
+    tokens_saved = max(0, int(original_tokens - dense_tokens))
 
     # Update session
     query_text = body.intent or body.code or body.skill_id or ""
@@ -158,10 +220,17 @@ async def health_check(request: Request):
     """Health check endpoint."""
     wrapper = request.app.state.wrapper
     index = request.app.state.retriever.index
+    retrieval_only = getattr(request.app.state, "retrieval_only", False)
+
+    if retrieval_only:
+        model_loaded = False  # No model in retrieval-only mode (by design)
+    else:
+        # Check without triggering lazy load (avoid loading model on health check)
+        model_loaded = wrapper is not None and wrapper._wrapper is not None
 
     return HealthResponse(
         status="ok",
-        model_loaded=wrapper.model is not None,
+        model_loaded=model_loaded,
         index_loaded=index.embeddings is not None,
         modules_count=len(index.entries) if index.entries else 0,
     )

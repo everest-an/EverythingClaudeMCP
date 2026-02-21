@@ -32,6 +32,8 @@ class LatentRetriever:
         top_k: int = 3,
         module_type_filter: str | None = None,
         min_score: float = 0.3,
+        query_text: str | None = None,
+        exclude_types: set[str] | None = None,
     ) -> list[RetrievedModule]:
         """Find and load the top-K most relevant modules.
 
@@ -40,6 +42,8 @@ class LatentRetriever:
             top_k: Number of modules to retrieve
             module_type_filter: Optional filter by module type
             min_score: Minimum cosine similarity threshold
+            query_text: Original query for keyword boosting
+            exclude_types: Module types to exclude from results
 
         Returns:
             List of RetrievedModule with loaded tensors, sorted by score
@@ -49,6 +53,8 @@ class LatentRetriever:
             top_k=top_k,
             module_type_filter=module_type_filter,
             min_score=min_score,
+            query_text=query_text,
+            exclude_types=exclude_types,
         )
 
         retrieved = []
@@ -122,6 +128,54 @@ class LatentRetriever:
         except Exception as e:
             logger.error("Failed to load tensors for %s: %s", module_id, e)
             return None
+
+    def retrieve_by_keywords(
+        self,
+        query_text: str,
+        top_k: int = 3,
+        module_type_filter: str | None = None,
+        exclude_types: set[str] | None = None,
+    ) -> list[RetrievedModule]:
+        """Keyword-based retrieval without embeddings (retrieval-only mode).
+
+        Scores modules by keyword overlap with query text. Used when no LLM
+        model is loaded (cloud retrieval-only deployment).
+        """
+        # Extract meaningful keywords (skip very short tokens and code punctuation)
+        raw_tokens = query_text.lower().replace("'", " ").replace('"', " ").split()
+        keywords = {t for t in raw_tokens if len(t) >= 3 and t.isalpha()}
+        scored = []
+
+        for entry in self.index.entries:
+            if module_type_filter and entry.module_type != module_type_filter:
+                continue
+            if exclude_types and entry.module_type in exclude_types:
+                continue
+
+            # Build match text from ID (split on / and --), name, and description
+            id_parts = entry.module_id.replace("/", " ").replace("--", " ")
+            match_text = f"{id_parts} {entry.name} {entry.description}".lower()
+            hits = sum(1 for kw in keywords if kw in match_text)
+            if hits > 0:
+                score = hits / max(len(keywords), 1)
+                scored.append((entry, score))
+
+        scored.sort(key=lambda x: x[1], reverse=True)
+
+        # In keyword mode (retrieval-only), skip tensor loading — only metadata needed
+        return [
+            RetrievedModule(
+                module_id=entry.module_id,
+                name=entry.name,
+                module_type=entry.module_type,
+                description=entry.description,
+                score=score,
+                layer_states=None,
+                latent_trajectory=None,
+                original_token_count=entry.token_count,
+            )
+            for entry, score in scored[:top_k]
+        ]
 
     def list_modules(
         self, module_type_filter: str | None = None

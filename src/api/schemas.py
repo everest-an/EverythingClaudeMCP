@@ -1,4 +1,4 @@
-"""Pydantic request/response models for the Latent-Link API."""
+"""Pydantic request/response models for the AwesomeContext API."""
 
 from __future__ import annotations
 

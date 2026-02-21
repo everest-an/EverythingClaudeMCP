@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Latent-Link Compiler: compile markdown rules into latent tensors"
+        description="AwesomeContext Compiler: compile markdown rules into latent tensors"
     )
     parser.add_argument(
         "--repo-root",

@@ -38,7 +38,8 @@ class NumpyIndex:
     """
 
     def __init__(self):
-        self.embeddings: np.ndarray | None = None  # [N, hidden_dim]
+        self.embeddings: np.ndarray | None = None  # [N, hidden_dim], mean-centered + L2-normed
+        self._centroid: np.ndarray | None = None    # [hidden_dim], mean vector for centering queries
         self.entries: list[IndexEntry] = []
 
     def build(self, encoded_modules: list[EncodedModule]) -> None:
@@ -84,14 +85,18 @@ class NumpyIndex:
         top_k: int = 3,
         module_type_filter: str | None = None,
         min_score: float = 0.3,
+        query_text: str | None = None,
+        exclude_types: set[str] | None = None,
     ) -> list[tuple[IndexEntry, float]]:
-        """Find top_k most similar modules by cosine similarity.
+        """Find top_k most similar modules by cosine similarity + keyword boosting.
 
         Args:
             query_embedding: Query vector [hidden_dim]
             top_k: Number of results to return
             module_type_filter: Optional filter by module_type
             min_score: Minimum similarity threshold
+            query_text: Original query text for keyword boosting
+            exclude_types: Module types to exclude (e.g., {"hook", "context"})
 
         Returns:
             List of (IndexEntry, score) tuples sorted by descending score
@@ -106,10 +111,26 @@ class NumpyIndex:
         # Cosine similarity via dot product (both vectors are L2-normalized)
         scores = self.embeddings @ query_norm  # [N]
 
-        # Apply module type filter
+        # Keyword boost: match query words against module_id, name, description
+        if query_text:
+            keywords = set(query_text.lower().split())
+            for i, entry in enumerate(self.entries):
+                match_text = f"{entry.module_id} {entry.name} {entry.description}".lower()
+                hits = sum(1 for kw in keywords if kw in match_text)
+                if hits > 0:
+                    scores[i] += 0.05 * hits  # Small boost per keyword match
+
+        # Apply module type filter (include only)
         if module_type_filter:
             mask = np.array([
                 e.module_type == module_type_filter for e in self.entries
+            ])
+            scores = np.where(mask, scores, -1.0)
+
+        # Apply module type exclusion
+        if exclude_types:
+            mask = np.array([
+                e.module_type not in exclude_types for e in self.entries
             ])
             scores = np.where(mask, scores, -1.0)
 
@@ -142,6 +163,8 @@ class NumpyIndex:
 
         if self.embeddings is not None:
             np.save(os.path.join(index_dir, "embeddings.npy"), self.embeddings)
+        if self._centroid is not None:
+            np.save(os.path.join(index_dir, "centroid.npy"), self._centroid)
 
         manifest = {
             "version": 1,
@@ -164,6 +187,10 @@ class NumpyIndex:
             return
 
         self.embeddings = np.load(embeddings_path)
+
+        centroid_path = os.path.join(index_dir, "centroid.npy")
+        if os.path.exists(centroid_path):
+            self._centroid = np.load(centroid_path)
 
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)

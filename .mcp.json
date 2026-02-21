@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "awesome-context": {
+      "command": "node",
+      "args": ["e:/EverythingClaudeMCP/mcp-server/dist/index.js"],
+      "env": {
+        "AC_BACKEND_URL": "http://127.0.0.1:8420"
+      }
+    }
+  }
+}

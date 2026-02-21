@@ -1,5 +1,5 @@
 /**
- * Type definitions for Latent-Link MCP Server ↔ FastAPI Backend communication.
+ * Type definitions for AwesomeContext MCP Server ↔ FastAPI Backend communication.
  */
 
 export interface LatentQueryRequest {

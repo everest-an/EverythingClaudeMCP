@@ -1,4 +1,4 @@
-# Latent-Link 技术架构文档
+# AwesomeContext 技术架构文档
 
 > **版本**: v1.0
 > **日期**: 2026-02-20
@@ -9,7 +9,7 @@
 
 ```
                           ┌─────────────────────────────────────────────────────┐
-                          │                  Latent-Link Gateway                 │
+                          │                  AwesomeContext Gateway               │
                           │                                                     │
   ┌──────────┐  stdio     │  ┌───────────┐  HTTP POST     ┌────────────────┐   │
   │Claude    │◄──────────►│  │MCP Server │◄──────────────►│ FastAPI        │   │
@@ -360,7 +360,7 @@ Claude Code ◄──stdio──► MCP Server (Node.js)
 ## 3. 目录结构
 
 ```
-e:\EverythingClaudeMCP\
+e:\AwesomeContext\
 ├── docs/
 │   ├── PRD.md                          ← 本文件
 │   └── architecture.md                 ← 本文件

@@ -1,0 +1,33 @@
+# AwesomeContext MCP Rules
+
+> Copy this file to your project root as `CLAUDE.md` to enable automatic rule injection.
+> Claude Code reads CLAUDE.md on every session start.
+
+## Auto Tool Invocation
+
+When starting a new conversation in this project:
+
+1. **ALWAYS** call `get_rules` first with the detected project type to load coding rules
+2. **ALWAYS** call `architect_consult` before writing code that involves design decisions
+3. **ALWAYS** call `compliance_verify` before finalizing or committing code changes
+4. When working on specific domains (testing, security, Docker, APIs), call `skill_injector`
+
+## Available MCP Tools
+
+| Tool | When to Use | Example |
+|------|-------------|---------|
+| `get_rules` | Session start | `get_rules({ project_type: "python" })` |
+| `architect_consult` | Before design/coding | `architect_consult({ intent: "design REST API with auth" })` |
+| `skill_injector` | Domain-specific tasks | `skill_injector({ skill_id: "skills/security-review" })` |
+| `compliance_verify` | Before commit | `compliance_verify({ code: "...", rules_filter: "python" })` |
+
+## Popular Skills
+
+- `skills/security-review` — Security audit checklist
+- `skills/tdd-workflow` — Test-driven development
+- `skills/code-review` — Code review best practices
+- `skills/docker-patterns` — Docker containerization
+- `skills/api-design` — REST API design patterns
+- `skills/database-migrations` — Database schema management
+
+Use `skill_injector({ skill_id: "list" })` to see all 40+ available skills.
