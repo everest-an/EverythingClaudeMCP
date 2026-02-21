@@ -47,7 +47,7 @@ export default function Hero() {
         {/* CTA */}
         <div className="flex items-center justify-center gap-4">
           <a
-            href="#quickstart"
+            href="/login"
             className="btn-glow group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[var(--accent)] text-white text-[14px] font-medium"
           >
             Get Started
