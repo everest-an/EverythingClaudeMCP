@@ -21,6 +21,16 @@ from ..shared.types import EncodedModule
 logger = logging.getLogger(__name__)
 
 
+def _sanitize_filename(module_id: str) -> str:
+    """Sanitize module_id for use as a filename on all platforms.
+
+    Replaces characters invalid on Windows (|, <, >, :, ", ?, *) with '--'.
+    """
+    for ch in ('|', '<', '>', ':', '"', '?', '*'):
+        module_id = module_id.replace(ch, '--')
+    return module_id
+
+
 def save_encoded_module(encoded: EncodedModule, base_dir: str) -> str:
     """Save an encoded module to a .safetensors file.
 
@@ -49,7 +59,8 @@ def save_encoded_module(encoded: EncodedModule, base_dir: str) -> str:
     # Build file path: base_dir/{type}s/{id}.safetensors
     # module_id like "agents/architect" → "agents/architect.safetensors"
     # module_id like "rules/common--coding-style" → "rules/common--coding-style.safetensors"
-    filename = encoded.module_id.replace("/", os.sep) + ".safetensors"
+    safe_id = _sanitize_filename(encoded.module_id)
+    filename = safe_id.replace("/", os.sep) + ".safetensors"
     filepath = os.path.join(base_dir, filename)
 
     save_tensors(tensors, filepath, metadata=metadata)
@@ -125,5 +136,6 @@ def list_compiled_modules(base_dir: str) -> list[str]:
 
 def _module_filepath(base_dir: str, module_id: str) -> str:
     """Convert module_id to filesystem path."""
-    filename = module_id.replace("/", os.sep) + ".safetensors"
+    safe_id = _sanitize_filename(module_id)
+    filename = safe_id.replace("/", os.sep) + ".safetensors"
     return os.path.join(base_dir, filename)

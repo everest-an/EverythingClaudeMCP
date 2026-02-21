@@ -25,6 +25,10 @@ mcp-server/node_modules/
 .env
 .env.local
 
+# SSH keys & deploy scripts
+*.pem
+deploy-*.sh
+
 # OS
 Thumbs.db
 .DS_Store

@@ -1,4 +1,4 @@
-"""Shared type definitions for Latent-Link Gateway."""
+"""Shared type definitions for AwesomeContext Gateway."""
 
 from __future__ import annotations
 

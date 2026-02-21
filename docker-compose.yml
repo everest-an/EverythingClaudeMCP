@@ -1,0 +1,114 @@
+# AwesomeContext Gateway - Docker Compose
+#
+# Usage:
+#   docker compose up                    # retrieval-only backend
+#   docker compose --profile full up     # full mode with model
+#   docker compose --profile cloud up    # cloud MCP service (all-in-one)
+#
+# Environment variables can be overridden via .env file
+
+services:
+  # ------------------------------------------------------------------
+  # Retrieval-only API (default) — lightweight, no LLM model
+  # ------------------------------------------------------------------
+  gateway:
+    build:
+      context: .
+      target: retrieval
+    ports:
+      - "${FASTAPI_PORT:-8420}:8080"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - AC_RETRIEVAL_ONLY=true
+      - AC_TENSOR_DIR=/app/data/tensors
+      - AC_INDEX_DIR=/app/data/index
+      - AC_SOURCE_REPO=/app/vendor/everything-claude-code
+    volumes:
+      - ./data/tensors:/app/data/tensors:ro
+      - ./data/index:/app/data/index:ro
+      - ./vendor/everything-claude-code:/app/vendor/everything-claude-code:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # Full API (optional) — includes model for intent encoding + decode
+  # ------------------------------------------------------------------
+  gateway-full:
+    build:
+      context: .
+      target: full
+    profiles:
+      - full
+    ports:
+      - "${FASTAPI_PORT:-8420}:8080"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - AC_TENSOR_DIR=/app/data/tensors
+      - AC_INDEX_DIR=/app/data/index
+      - AC_SOURCE_REPO=/app/vendor/everything-claude-code
+      - AC_MODEL=${AC_MODEL:-Qwen/Qwen2.5-Coder-1.5B-Instruct}
+    volumes:
+      - ./data/tensors:/app/data/tensors:ro
+      - ./data/index:/app/data/index:ro
+      - ./vendor/everything-claude-code:/app/vendor/everything-claude-code:ro
+      - huggingface-cache:/root/.cache/huggingface
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # Cloud MCP service — all-in-one, users connect via URL
+  # ------------------------------------------------------------------
+  cloud:
+    build:
+      context: .
+      target: cloud
+    profiles:
+      - cloud
+    ports:
+      - "${MCP_PORT:-3000}:3000"
+    environment:
+      - BACKEND_PORT=8420
+      - MCP_PORT=3000
+      - AC_RETRIEVAL_ONLY=true
+      - AC_BACKEND_URL=http://127.0.0.1:8420
+    volumes:
+      - ./data/tensors:/app/data/tensors:ro
+      - ./data/index:/app/data/index:ro
+      - ./vendor/everything-claude-code:/app/vendor/everything-claude-code:ro
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # PostgreSQL — persistent storage for auth, API keys, usage logs
+  # ------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-awesomecontext}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ac_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-awesomecontext}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-awesomecontext}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  huggingface-cache:
+  postgres-data:

@@ -4,7 +4,7 @@
 
 import type { LatentQueryRequest, LatentQueryResponse, ModuleListResponse } from "./types.js";
 
-const BACKEND_URL = process.env.LATENT_BACKEND_URL || "http://127.0.0.1:8420";
+const BACKEND_URL = process.env.AC_BACKEND_URL || "http://127.0.0.1:8420";
 
 export async function queryLatentBackend(
   request: LatentQueryRequest

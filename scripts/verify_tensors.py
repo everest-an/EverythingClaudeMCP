@@ -18,12 +18,15 @@ from safetensors import safe_open
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.adapter.config import HIDDEN_SIZE, NUM_HIDDEN_LAYERS
-
-
 def main():
-    tensor_dir = Path("data/tensors")
-    index_dir = Path("data/index")
+    import argparse
+    parser = argparse.ArgumentParser(description="Verify compiled safetensors files")
+    parser.add_argument("--tensor-dir", default="data/tensors", help="Tensor directory")
+    parser.add_argument("--index-dir", default="data/index", help="Index directory")
+    args = parser.parse_args()
+
+    tensor_dir = Path(args.tensor_dir)
+    index_dir = Path(args.index_dir)
 
     if not tensor_dir.exists():
         print("ERROR: data/tensors/ not found. Run compilation first.")
@@ -49,20 +52,18 @@ def main():
                         errors += 1
                         continue
 
-                # Check shapes
+                # Check shapes (auto-detect hidden_size from first tensor)
                 me = f.get_tensor("mean_embedding")
-                if me.shape != (HIDDEN_SIZE,):
-                    print(f"WRONG shape mean_embedding: {me.shape} (expected [{HIDDEN_SIZE}])")
-                    errors += 1
+                hidden_size = me.shape[0]
 
                 ls = f.get_tensor("layer_states")
-                if ls.shape[0] != NUM_HIDDEN_LAYERS or ls.shape[1] != HIDDEN_SIZE:
-                    print(f"WRONG shape layer_states: {list(ls.shape)}")
+                if ls.ndim != 2 or ls.shape[1] != hidden_size:
+                    print(f"WRONG shape layer_states: {list(ls.shape)} (expected [N, {hidden_size}])")
                     errors += 1
 
                 lt = f.get_tensor("latent_trajectory")
-                if lt.shape[1] != HIDDEN_SIZE:
-                    print(f"WRONG shape latent_trajectory: {list(lt.shape)}")
+                if lt.ndim != 2 or lt.shape[1] != hidden_size:
+                    print(f"WRONG shape latent_trajectory: {list(lt.shape)} (expected [N, {hidden_size}])")
                     errors += 1
 
                 # Check for NaN/Inf
@@ -91,7 +92,7 @@ def main():
     # Cross-check with manifest
     manifest_path = index_dir / "manifest.json"
     if manifest_path.exists():
-        with open(manifest_path) as f:
+        with open(manifest_path, encoding="utf-8") as f:
             manifest = json.load(f)
         indexed_count = manifest.get("count", 0)
         print(f"\nIndex manifest: {indexed_count} entries")

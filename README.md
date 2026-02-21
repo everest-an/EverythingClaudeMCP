@@ -6,17 +6,17 @@
   <img src="https://img.shields.io/badge/latent-engine-Qwen3-orange" alt="latent-engine"/>
 </p>
 
-# Latent-Link Rule Injection Gateway
+# AwesomeContext Rule Injection Gateway
 
 > Compress thousands of engineering rules into latent space tensors. Query them in < 150 tokens.
 
-**Latent-Link** is an implicit context engine that compiles complex engineering instruction sets (rules, skills, agents) from text space into latent space tensors using [latent-engine](https://github.com/internal/latent-engine). Instead of injecting full Markdown documents into Claude Code's context window, Latent-Link retrieves and decodes compressed neural representations — achieving **96-99% token savings** while preserving semantic fidelity.
+**AwesomeContext** is an implicit context engine that compiles complex engineering instruction sets (rules, skills, agents) from text space into latent space tensors using [latent-engine](https://github.com/internal/latent-engine). Instead of injecting full Markdown documents into Claude Code's context window, AwesomeContext retrieves and decodes compressed neural representations — achieving **96-99% token savings** while preserving semantic fidelity.
 
 ---
 
-## Why Latent-Link?
+## Why AwesomeContext?
 
-| Problem | Before | After (Latent-Link) |
+| Problem | Before | After (AwesomeContext) |
 |---------|--------|---------------------|
 | **Token waste** | Inject full Markdown rules (2,000-5,000 tokens each) | Compressed to < 150 token dense prompt |
 | **Rule drift** | Rules "forgotten" in long contexts | Latent tensors maintain semantic integrity |
@@ -27,7 +27,7 @@
 
 ## How It Works
 
-Latent-Link operates in two phases:
+AwesomeContext operates in two phases:
 
 ### Phase 1: Offline Compilation (compile once)
 
@@ -82,13 +82,13 @@ When Claude Code calls a tool, the gateway encodes the intent, retrieves matchin
 | **Qwen3-14B** | 5120 | 40 | No | GPU (>=24GB VRAM) | ~28GB (bf16) | Highest encoding fidelity |
 | **Qwen2.5-Coder-1.5B** | 1536 | 28 | Yes | CPU | ~6GB (fp32) | Lightweight fallback, no GPU needed |
 
-Auto-detection: If CUDA is available, defaults to Qwen3-4B. Otherwise falls back to Qwen2.5-1.5B. Override with `LATENT_LINK_MODEL` env var.
+Auto-detection: If CUDA is available, defaults to Qwen3-4B. Otherwise falls back to Qwen2.5-1.5B. Override with `AC_MODEL` env var.
 
 ---
 
 ## MCP Tools
 
-Latent-Link exposes 3 tools via the [Model Context Protocol](https://modelcontextprotocol.io/):
+AwesomeContext exposes 3 tools via the [Model Context Protocol](https://modelcontextprotocol.io/):
 
 ### `architect_consult`
 Extract architecture rules and best practices before designing or refactoring.
@@ -124,8 +124,8 @@ Check code against engineering standards before commit.
 ### 1. Clone & Install
 
 ```bash
-git clone --recurse-submodules https://github.com/everest-an/EverythingClaudeMCP.git
-cd EverythingClaudeMCP
+git clone --recurse-submodules https://github.com/everest-an/AwesomeContext.git
+cd AwesomeContext
 
 # Python dependencies
 pip install -e ".[dev]"
@@ -147,7 +147,7 @@ python scripts/compile.py
 python scripts/compile.py --delta
 
 # Use a specific model
-LATENT_LINK_MODEL="Qwen/Qwen3-14B" python scripts/compile.py
+AC_MODEL="Qwen/Qwen3-14B" python scripts/compile.py
 ```
 
 Example output:
@@ -189,11 +189,11 @@ Add to your Claude Code MCP configuration (`~/.config/claude-code/mcp.json` or p
 ```json
 {
   "mcpServers": {
-    "latent-link": {
+    "awesome-context": {
       "command": "node",
-      "args": ["path/to/EverythingClaudeMCP/mcp-server/dist/index.js"],
+      "args": ["path/to/AwesomeContext/mcp-server/dist/index.js"],
       "env": {
-        "LATENT_LINK_API": "http://127.0.0.1:8420"
+        "AC_API": "http://127.0.0.1:8420"
       }
     }
   }
@@ -395,7 +395,7 @@ At decode time, retrieved latent trajectories are inserted directly into the emb
 ## Project Structure
 
 ```
-EverythingClaudeMCP/
+AwesomeContext/
 ├── src/
 │   ├── adapter/                 # latent-engine multi-model adaptation
 │   │   ├── config.py            # Model profiles, auto hardware detection
@@ -479,8 +479,8 @@ EverythingClaudeMCP/
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LATENT_LINK_MODEL` | Auto-detect | Override model selection (`Qwen/Qwen3-4B`, `Qwen/Qwen3-14B`, `Qwen/Qwen2.5-Coder-1.5B-Instruct`) |
-| `LATENT_LINK_API` | `http://127.0.0.1:8420` | FastAPI backend URL (used by MCP server) |
+| `AC_MODEL` | Auto-detect | Override model selection (`Qwen/Qwen3-4B`, `Qwen/Qwen3-14B`, `Qwen/Qwen2.5-Coder-1.5B-Instruct`) |
+| `AC_API` | `http://127.0.0.1:8420` | FastAPI backend URL (used by MCP server) |
 
 ---
 

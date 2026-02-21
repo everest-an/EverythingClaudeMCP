@@ -34,14 +34,23 @@ def build_rule_encoding_prompt(
 
 
 def build_intent_query_prompt(intent: str) -> list[dict[str, str]]:
-    """Build ChatML prompt for encoding a user intent into latent space for retrieval."""
+    """Build ChatML prompt for encoding a user intent into latent space for retrieval.
+
+    Uses the same framing as module encoding (build_rule_encoding_prompt) so that
+    the resulting hidden states live in the same embedding subspace as compiled modules.
+    """
     system_msg = (
-        "You are a code assistant. Analyze the following request and identify "
-        "which coding rules, architectural patterns, and best practices are relevant."
+        "You are a code assistant that has deeply internalized the following "
+        "rule named 'query'. When reasoning about code, "
+        "these principles are part of your core understanding."
+    )
+    user_msg = (
+        f"Study and internalize this rule:\n\n{intent}\n\n"
+        f"Summarize the key principles and rules you must always follow."
     )
     return [
         {"role": "system", "content": system_msg},
-        {"role": "user", "content": intent},
+        {"role": "user", "content": user_msg},
     ]
 
 

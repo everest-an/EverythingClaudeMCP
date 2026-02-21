@@ -1,4 +1,4 @@
-"""Multi-model configuration for Latent-Link Gateway.
+"""Multi-model configuration for AwesomeContext Gateway.
 
 Supports:
 - Qwen3-4B (default) — latent-engine native, GPU bfloat16
@@ -11,7 +11,10 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-import torch
+try:
+    import torch
+except ImportError:
+    torch = None  # type: ignore[assignment]
 
 
 # ---------------------------------------------------------------------------
@@ -98,15 +101,15 @@ def _resolve_default_model() -> str:
     """Determine the default model based on environment and hardware.
 
     Priority:
-    1. LATENT_LINK_MODEL env var (explicit override)
+    1. AC_MODEL env var (explicit override)
     2. Qwen3-4B if CUDA is available
     3. Qwen2.5-Coder-1.5B-Instruct as CPU fallback
     """
-    env_model = os.environ.get("LATENT_LINK_MODEL")
+    env_model = os.environ.get("AC_MODEL")
     if env_model and env_model in MODEL_PROFILES:
         return env_model
 
-    if torch.cuda.is_available():
+    if torch is not None and torch.cuda.is_available():
         return "Qwen/Qwen3-4B"
 
     return "Qwen/Qwen2.5-Coder-1.5B-Instruct"
@@ -125,13 +128,15 @@ def get_profile(model_name: str | None = None) -> ModelProfile:
 
 def resolve_device(profile: ModelProfile) -> str:
     """Resolve the actual device to use based on profile and hardware."""
-    if profile.recommended_device == "cuda" and torch.cuda.is_available():
+    if torch is not None and profile.recommended_device == "cuda" and torch.cuda.is_available():
         return "cuda"
     return "cpu"
 
 
-def resolve_dtype(profile: ModelProfile, device: str) -> torch.dtype:
+def resolve_dtype(profile: ModelProfile, device: str):
     """Resolve the actual torch dtype based on profile and device."""
+    if torch is None:
+        return None
     if device == "cuda" and profile.recommended_dtype == "bfloat16":
         return torch.bfloat16
     return torch.float32
@@ -174,5 +179,9 @@ DEFAULT_TOP_K = 3  # Default number of modules to retrieve
 MIN_SIMILARITY_SCORE = 0.3  # Minimum cosine similarity threshold
 
 # Server configuration
-FASTAPI_HOST = "127.0.0.1"
-FASTAPI_PORT = 8420
+FASTAPI_HOST = os.environ.get("HOST", os.environ.get("FASTAPI_HOST", "127.0.0.1"))
+FASTAPI_PORT = int(os.environ.get("PORT", os.environ.get("FASTAPI_PORT", "8420")))
+
+# Retrieval-only mode: skip model loading and decode, return module metadata only.
+# Ideal for cloud deployment where you only need semantic search (~5ms per query).
+RETRIEVAL_ONLY = os.environ.get("AC_RETRIEVAL_ONLY", "").lower() in ("1", "true", "yes")

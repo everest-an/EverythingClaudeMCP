@@ -1,0 +1,47 @@
+# Git
+.git
+.gitmodules
+
+# Python
+__pycache__
+*.py[cod]
+*.egg-info
+dist/
+build/
+.venv/
+venv/
+
+# Vendor submodules (latent-engine not needed in container)
+vendor/latent-engine/
+
+# Node.js MCP server (separate deployment)
+mcp-server/node_modules/
+mcp-server/dist/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+
+# Docs / Tests (not needed at runtime)
+docs/
+tests/
+scripts/colab_compile.ipynb
+*.md
+LICENSE
+
+# Environment files (secrets)
+.env
+.env.local
+.env.production
+
+# Model cache (downloaded at runtime or pre-baked)
+data/model-cache/
+data/model-onnx*/
+data/cache/
+
+# Keep tensors and index (COPY'd in Dockerfile)
+# !data/tensors/
+# !data/index/

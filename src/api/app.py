@@ -1,4 +1,4 @@
-"""FastAPI application factory for Latent-Link Gateway."""
+"""FastAPI application factory for AwesomeContext Gateway."""
 
 from __future__ import annotations
 
@@ -7,11 +7,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from ..adapter.config import FASTAPI_HOST, FASTAPI_PORT
-from ..adapter.model_wrapper import AdaptedModelWrapper
+from ..adapter.config import FASTAPI_HOST, FASTAPI_PORT, RETRIEVAL_ONLY
 from ..compiler.indexer import NumpyIndex
-from ..gateway.decoder import LatentDecoder
-from ..gateway.intent_encoder import IntentEncoder
+from ..gateway.content_store import SourceContentStore
 from ..gateway.retriever import LatentRetriever
 from ..gateway.session import SessionManager
 from .middleware import add_middleware
@@ -28,7 +26,7 @@ class LazyModelWrapper:
     """
 
     def __init__(self, model_name: str | None = None):
-        self._wrapper: AdaptedModelWrapper | None = None
+        self._wrapper = None
         self._model_name = model_name
 
     @property
@@ -53,6 +51,8 @@ class LazyModelWrapper:
 
     def _ensure_loaded(self):
         if self._wrapper is None:
+            from ..adapter.model_wrapper import AdaptedModelWrapper
+
             logger.info("Lazy-loading model (first query)...")
             kwargs = {}
             if self._model_name:
@@ -89,42 +89,66 @@ class LazyModelWrapper:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: load index on startup, cleanup on shutdown."""
-    logger.info("Starting Latent-Link Gateway...")
+    logger.info("Starting AwesomeContext Gateway...")
+
+    import os
+    tensor_dir = os.environ.get("AC_TENSOR_DIR", "data/tensors")
+    index_dir = os.environ.get("AC_INDEX_DIR", "data/index")
+    repo_root = os.environ.get("AC_SOURCE_REPO", "vendor/everything-claude-code")
 
     # Load index (lightweight, milliseconds)
     index = NumpyIndex()
     try:
-        index.load("data/index")
-        logger.info("Index loaded: %d modules", len(index.entries))
+        index.load(index_dir)
+        logger.info("Index loaded: %d modules from %s", len(index.entries), index_dir)
     except Exception as e:
         logger.warning("Failed to load index: %s (compile first?)", e)
 
-    # Create lazy model wrapper (defers actual load)
-    wrapper = LazyModelWrapper()
+    # Load source content store (for returning actual markdown in responses)
+    content_store = SourceContentStore()
+    content_store.load_from_repo(repo_root)
 
     # Wire up components
-    retriever = LatentRetriever(index, "data/tensors")
-    intent_encoder = IntentEncoder(wrapper)
-    decoder = LatentDecoder(wrapper)
+    retriever = LatentRetriever(index, tensor_dir)
     session_manager = SessionManager()
-
-    app.state.wrapper = wrapper
     app.state.retriever = retriever
-    app.state.intent_encoder = intent_encoder
-    app.state.decoder = decoder
     app.state.session_manager = session_manager
+    app.state.content_store = content_store
+    app.state.retrieval_only = RETRIEVAL_ONLY
+
+    if RETRIEVAL_ONLY:
+        # Retrieval-only mode: no model, no encoder, no decoder
+        # Ideal for cloud deployment (~5ms per query, minimal memory)
+        logger.info("Running in RETRIEVAL-ONLY mode (no LLM model loaded)")
+        app.state.wrapper = None
+        app.state.intent_encoder = None
+        app.state.decoder = None
+    else:
+        from ..adapter.model_wrapper import AdaptedModelWrapper
+        from ..gateway.decoder import LatentDecoder
+        from ..gateway.intent_encoder import IntentEncoder
+
+        # Create lazy model wrapper (defers actual load)
+        wrapper = LazyModelWrapper()
+        intent_encoder = IntentEncoder(wrapper)
+        decoder = LatentDecoder(wrapper)
+
+        app.state.wrapper = wrapper
+        app.state.intent_encoder = intent_encoder
+        app.state.decoder = decoder
 
     yield
 
     # Cleanup
-    wrapper.cleanup()
-    logger.info("Latent-Link Gateway stopped.")
+    if not RETRIEVAL_ONLY and app.state.wrapper:
+        app.state.wrapper.cleanup()
+    logger.info("AwesomeContext Gateway stopped.")
 
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     app = FastAPI(
-        title="Latent-Link Rule Injection Gateway",
+        title="AwesomeContext Rule Injection Gateway",
         description="Compress engineering rules into latent space tensors via latent-engine",
         version="0.1.0",
         lifespan=lifespan,

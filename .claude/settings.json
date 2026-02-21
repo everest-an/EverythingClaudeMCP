@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo create:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh repo edit:*)",
+      "Read(//c/Users/admin/AppData/Local/Temp/claude/e--EverythingClaudeMCP/tasks/**)",
+      "Read(//c/Users/admin/.claude/projects/e--EverythingClaudeMCP/56eeaac4-7dd5-48a1-b687-2b1ff69eaafe/tool-results/**)",
+      "Bash(nvidia-smi:*)",
+      "Bash(\"C:/Windows/System32/nvidia-smi.exe\")",
+      "Bash(\"C:/Program Files/NVIDIA Corporation/NVSMI/nvidia-smi.exe\":*)",
+      "Bash(powershell.exe -Command \"nvidia-smi\")",
+      "Bash(powershell.exe -Command \"Get-WmiObject Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM\")",
+      "Bash(powershell.exe -Command \"Get-Process -Name python -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(taskkill:*)"
+    ]
+  }
+}

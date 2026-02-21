@@ -1,1 +1,1 @@
-"""FastAPI backend for Latent-Link Gateway."""
+"""FastAPI backend for AwesomeContext Gateway."""

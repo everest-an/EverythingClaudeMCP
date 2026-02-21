@@ -1,0 +1,11 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+# Build the retrieval-only target (lightweight, no LLM model)
+buildTarget = "retrieval"
+
+[deploy]
+healthcheckPath = "/v1/health"
+healthcheckTimeout = 10
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
