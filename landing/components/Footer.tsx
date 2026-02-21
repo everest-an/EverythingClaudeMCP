@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import RevealOnScroll from "./RevealOnScroll";
 
 export default function Footer() {
@@ -74,8 +75,22 @@ export default function Footer() {
 
         {/* Copyright */}
         <RevealOnScroll delay={2}>
-          <div className="mt-8 text-[12px] text-[var(--text-tertiary)]">
-            MIT License
+          <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-[12px] text-[var(--text-tertiary)]">
+            <div>Powered by Awareness · MIT License</div>
+            <div className="flex items-center gap-4 text-[11px]">
+              <Link
+                href="/terms"
+                className="hover:text-[var(--foreground)] transition-colors"
+              >
+                Terms
+              </Link>
+              <Link
+                href="/privacy"
+                className="hover:text-[var(--foreground)] transition-colors"
+              >
+                Privacy
+              </Link>
+            </div>
           </div>
         </RevealOnScroll>
       </div>

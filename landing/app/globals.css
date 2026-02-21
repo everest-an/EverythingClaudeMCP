@@ -254,55 +254,60 @@ body {
 /* Aurora / ambient glow background */
 .aurora {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   pointer-events: none;
   z-index: -1;
   overflow: hidden;
 }
 
-.aurora-blob {
+.aurora-base,
+.aurora-radial,
+.aurora-blinds {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  animation: aurora-drift 20s ease-in-out infinite;
+  inset: 0;
 }
 
-.aurora-blob:nth-child(1) {
-  width: 600px;
-  height: 400px;
-  background: rgba(110, 86, 207, 0.04);
-  top: -10%;
-  left: 20%;
+.aurora-base {
+  background: #000;
 }
 
-.aurora-blob:nth-child(2) {
-  width: 500px;
-  height: 500px;
-  background: rgba(76, 201, 240, 0.03);
-  top: 40%;
-  right: -10%;
-  animation-delay: -7s;
-  animation-duration: 25s;
+.aurora-radial {
+  background: radial-gradient(
+    circle at 50% 50%,
+    #000 0%,
+    #000 35.31%,
+    #151515 93.75%,
+    #292929 100%
+  );
+  transform: scale(1.08);
+  opacity: 0.95;
+  animation: aurora-radial-shift 12s linear infinite;
 }
 
-.aurora-blob:nth-child(3) {
-  width: 700px;
-  height: 300px;
-  background: rgba(110, 86, 207, 0.03);
-  bottom: -5%;
-  left: -10%;
-  animation-delay: -14s;
-  animation-duration: 30s;
+.aurora-blinds {
+  background:
+    repeating-linear-gradient(
+      146deg,
+      rgba(255, 255, 255, 0.025) 0px,
+      rgba(255, 255, 255, 0.025) 1px,
+      rgba(0, 0, 0, 0) 1px,
+      rgba(0, 0, 0, 0) 22px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.18;
+  filter: blur(0.2px);
+  animation: aurora-blinds-drift 28s linear infinite;
 }
 
-@keyframes aurora-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(60px, -40px) scale(1.1); }
-  50% { transform: translate(-30px, 50px) scale(0.95); }
-  75% { transform: translate(40px, 30px) scale(1.05); }
+@keyframes aurora-radial-shift {
+  0% { transform: scale(1.08) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(0.8deg); }
+  100% { transform: scale(1.08) rotate(0deg); }
+}
+
+@keyframes aurora-blinds-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, 40px, 0); }
 }
 
 /* Mouse spotlight (set via JS) */
