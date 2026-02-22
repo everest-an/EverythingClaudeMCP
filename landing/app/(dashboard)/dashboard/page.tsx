@@ -9,7 +9,7 @@ export default async function DashboardPage() {
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [totalCalls, activeKeys, recentActivity, callsByTool] =
+  const [totalCalls, activeKeys, recentActivity, callsByTool, callsByKey] =
     await Promise.all([
       prisma.usageLog.count({
         where: { userId, createdAt: { gte: thirtyDaysAgo } },
@@ -25,6 +25,23 @@ export default async function DashboardPage() {
         by: ["toolName"],
         where: { userId, createdAt: { gte: thirtyDaysAgo } },
         _count: true,
+      }),
+      prisma.apiKey.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          name: true,
+          keyPrefix: true,
+          isActive: true,
+          _count: {
+            select: {
+              usageLogs: {
+                where: { createdAt: { gte: thirtyDaysAgo } },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
 
@@ -75,6 +92,50 @@ export default async function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Usage by Key */}
+      {callsByKey.length > 0 && (
+        <div className="glass-card rounded-2xl p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4">Usage by Key (30d)</h2>
+          <div className="space-y-3">
+            {callsByKey
+              .filter((k) => k.isActive || k._count.usageLogs > 0)
+              .map((key) => {
+                const max = Math.max(
+                  ...callsByKey.map((k) => k._count.usageLogs),
+                  1,
+                );
+                const pct = (key._count.usageLogs / max) * 100;
+                return (
+                  <div key={key.id}>
+                    <div className="flex justify-between text-[13px] mb-1">
+                      <span className="text-[var(--text-secondary)]">
+                        {key.name}
+                        <span className="text-[var(--text-tertiary)] ml-1.5 font-mono text-[11px]">
+                          {key.keyPrefix}...
+                        </span>
+                        {!key.isActive && (
+                          <span className="text-red-400 ml-1.5 text-[11px]">
+                            revoked
+                          </span>
+                        )}
+                      </span>
+                      <span className="font-medium">
+                        {key._count.usageLogs}
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-[var(--glass-bg)]">
+                      <div
+                        className="h-2 rounded-full bg-[var(--secondary)]"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
       )}

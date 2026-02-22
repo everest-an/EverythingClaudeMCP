@@ -36,6 +36,35 @@ export default async function LoginPage({
             Get your API key and start using MCP tools.
           </p>
 
+          {/* Email magic link */}
+          <form method="POST" action="/api/auth/signin/resend" className="mb-6">
+            <input type="hidden" name="csrfToken" value={csrfToken} />
+            <input type="hidden" name="callbackUrl" value={redirectTo} />
+            <div className="flex gap-2">
+              <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                className="flex-1 px-4 py-3 rounded-xl glass text-[14px] bg-transparent border border-[var(--glass-border)] focus:border-[var(--accent)] focus:outline-none placeholder:text-[var(--text-tertiary)] transition-colors"
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 rounded-xl bg-[var(--accent)] text-white text-[14px] font-medium hover:opacity-90 transition-opacity shrink-0"
+              >
+                Continue
+              </button>
+            </div>
+          </form>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-[var(--glass-border)]" />
+            <span className="text-[12px] text-[var(--text-tertiary)] uppercase tracking-wide">or</span>
+            <div className="flex-1 h-px bg-[var(--glass-border)]" />
+          </div>
+
+          {/* OAuth providers */}
           <div className="space-y-3">
             <form method="POST" action="/api/auth/signin/google">
               <input type="hidden" name="csrfToken" value={csrfToken} />
