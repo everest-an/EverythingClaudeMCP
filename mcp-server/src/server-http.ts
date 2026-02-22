@@ -356,6 +356,7 @@ app.get("/health", (_req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 
 const PORT = parseInt(process.env.MCP_PORT || "3000", 10);
+const STRICT_AUTH = process.env.AC_STRICT_AUTH === "true";
 
 app.listen(PORT, () => {
   log(`AwesomeContext MCP HTTP server listening on port ${PORT}`);
@@ -363,5 +364,11 @@ app.listen(PORT, () => {
   log(`  SSE (legacy):    http://localhost:${PORT}/sse`);
   log(`  Health:          http://localhost:${PORT}/health`);
   log(`  Backend:         ${process.env.AC_BACKEND_URL || "http://127.0.0.1:8420"}`);
-  log(`  Auth mode:       ${process.env.AC_PUBLIC_MODE === "true" ? "PUBLIC (no key required)" : "API key required"}`);
+  if (process.env.AC_PUBLIC_MODE === "true") {
+    log("  Auth mode:       PUBLIC (no key required)");
+  } else if (STRICT_AUTH) {
+    log("  Auth mode:       STRICT (missing/invalid key returns 401/503)");
+  } else {
+    log("  Auth mode:       FAIL-OPEN (missing/invalid key allowed as public)");
+  }
 });

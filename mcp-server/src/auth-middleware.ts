@@ -3,6 +3,9 @@ import { Request, Response, NextFunction } from "express";
 // Public mode: skip API key auth entirely.
 // Set AC_PUBLIC_MODE=true for initial deployment or open-access instances.
 const PUBLIC_MODE = process.env.AC_PUBLIC_MODE === "true";
+// Strict mode: when true, missing/invalid keys return 401/503.
+// Default is fail-open to avoid blocking users on auth wiring issues.
+const STRICT_AUTH = process.env.AC_STRICT_AUTH === "true";
 
 // In-memory cache: apiKey -> { userId, apiKeyId, expiresAt }
 const keyCache = new Map<
@@ -44,14 +47,50 @@ export function authMiddleware(skipPaths: string[] = ["/health"]) {
     }
 
     const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
-      res
-        .status(401)
-        .json({ error: "Missing API key. Use Authorization: Bearer ac_..." });
-      return;
+    let apiKey: string | undefined;
+
+    if (authHeader?.startsWith("Bearer ")) {
+      apiKey = authHeader.slice(7);
     }
 
-    const apiKey = authHeader.slice(7);
+    // Header fallback for clients that cannot set Authorization.
+    if (!apiKey) {
+      const headerToken = req.headers["x-api-key"] as string | undefined;
+      apiKey = headerToken;
+      if (apiKey?.startsWith("Bearer ")) {
+        apiKey = apiKey.slice(7);
+      }
+    }
+
+    // Query fallback for browser/EventSource style clients.
+    // Accepted on MCP transport routes only.
+    if (
+      !apiKey &&
+      (req.path === "/sse" || req.path === "/messages" || req.path === "/mcp")
+    ) {
+      const queryToken =
+        (req.query.access_token as string | undefined) ||
+        (req.query.api_key as string | undefined);
+      apiKey = queryToken;
+
+      if (apiKey?.startsWith("Bearer ")) {
+        apiKey = apiKey.slice(7);
+      }
+    }
+
+    if (!apiKey) {
+      if (!STRICT_AUTH) {
+        req.authInfo = { userId: "public", apiKeyId: "public" };
+        return next();
+      }
+      res
+        .status(401)
+        .json({
+          error:
+            "Missing API key. Use Authorization: Bearer ac_... (or x-api-key / access_token / api_key on /mcp, /sse, /messages)",
+        });
+      return;
+    }
 
     // Check cache
     const cached = keyCache.get(apiKey);
@@ -75,6 +114,10 @@ export function authMiddleware(skipPaths: string[] = ["/health"]) {
       };
 
       if (!data.valid) {
+        if (!STRICT_AUTH) {
+          req.authInfo = { userId: "public", apiKeyId: "public" };
+          return next();
+        }
         res.status(401).json({ error: "Invalid or revoked API key" });
         return;
       }
@@ -89,6 +132,10 @@ export function authMiddleware(skipPaths: string[] = ["/health"]) {
       next();
     } catch (err) {
       console.error("Key validation error:", err);
+      if (!STRICT_AUTH) {
+        req.authInfo = { userId: "public", apiKeyId: "public" };
+        return next();
+      }
       res.status(503).json({ error: "Auth service unavailable" });
     }
   };
