@@ -8,14 +8,20 @@ export default auth((req) => {
   if (
     pathname === "/" ||
     pathname === "/login" ||
+    pathname === "/skills" ||
+    pathname === "/privacy" ||
+    pathname === "/terms" ||
     pathname.startsWith("/api/auth") ||
     pathname === "/api/validate-key" ||
     pathname === "/api/log-usage" ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
+    pathname.startsWith("/.well-known") ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||
-    /\.(svg|png|ico|jpg|webp|woff2?)$/.test(pathname)
+    pathname === "/llms.txt" ||
+    pathname === "/llms-full.txt" ||
+    /\.(svg|png|ico|jpg|webp|woff2?|json|txt)$/.test(pathname)
   ) {
     return NextResponse.next();
   }
