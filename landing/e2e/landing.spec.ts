@@ -130,14 +130,14 @@ test.describe("SEO & GEO", () => {
 // ── MCP Endpoint (via direct IP, avoids local TLS issues) ─────
 
 test.describe("MCP Endpoint", () => {
-  test("MCP health check", async ({ request }) => {
+  test("MCP health check (always public)", async ({ request }) => {
     const res = await request.get(`${MCP_BASE}/health`);
     expect(res.status()).toBe(200);
     const json = await res.json();
     expect(json.status).toBe("ok");
   });
 
-  test("MCP POST /mcp responds to initialize", async ({ request }) => {
+  test("MCP rejects unauthenticated requests with 401", async ({ request }) => {
     const res = await request.post(`${MCP_BASE}/mcp`, {
       headers: { "Content-Type": "application/json", "Accept": "application/json, text/event-stream" },
       data: {
@@ -151,93 +151,8 @@ test.describe("MCP Endpoint", () => {
         },
       },
     });
-    expect([200, 202]).toContain(res.status());
-  });
-
-  test("MCP tools/list returns 4 tools", async ({ request }) => {
-    // Initialize a session
-    const initRes = await request.post(`${MCP_BASE}/mcp`, {
-      headers: { "Content-Type": "application/json", "Accept": "application/json, text/event-stream" },
-      data: {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "initialize",
-        params: {
-          protocolVersion: "2024-11-05",
-          capabilities: {},
-          clientInfo: { name: "playwright-test", version: "1.0.0" },
-        },
-      },
-    });
-    const sessionId = initRes.headers()["mcp-session-id"];
-
-    // List tools — response may be SSE stream
-    const res = await request.post(`${MCP_BASE}/mcp`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json, text/event-stream",
-        ...(sessionId ? { "mcp-session-id": sessionId } : {}),
-      },
-      data: {
-        jsonrpc: "2.0",
-        id: 2,
-        method: "tools/list",
-        params: {},
-      },
-    });
-    expect(res.status()).toBe(200);
-    const body = await res.text();
-    // Parse SSE: extract JSON from "data: {...}" lines
-    const dataLines = body.split("\n").filter((l: string) => l.startsWith("data: "));
-    const jsonStr = dataLines.map((l: string) => l.slice(6)).join("");
-    expect(jsonStr.length).toBeGreaterThan(0);
-    const json = JSON.parse(jsonStr);
-    const toolNames = json.result?.tools?.map((t: { name: string }) => t.name) ?? [];
-    expect(toolNames).toContain("get_rules");
-    expect(toolNames).toContain("architect_consult");
-    expect(toolNames).toContain("skill_injector");
-    expect(toolNames).toContain("compliance_verify");
-  });
-
-  test("MCP get_rules tool works", async ({ request }) => {
-    const initRes = await request.post(`${MCP_BASE}/mcp`, {
-      headers: { "Content-Type": "application/json", "Accept": "application/json, text/event-stream" },
-      data: {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "initialize",
-        params: {
-          protocolVersion: "2024-11-05",
-          capabilities: {},
-          clientInfo: { name: "playwright-test", version: "1.0.0" },
-        },
-      },
-    });
-    const sessionId = initRes.headers()["mcp-session-id"];
-
-    const res = await request.post(`${MCP_BASE}/mcp`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json, text/event-stream",
-        ...(sessionId ? { "mcp-session-id": sessionId } : {}),
-      },
-      data: {
-        jsonrpc: "2.0",
-        id: 3,
-        method: "tools/call",
-        params: {
-          name: "get_rules",
-          arguments: { project_type: "typescript" },
-        },
-      },
-    });
-    expect(res.status()).toBe(200);
-    const body = await res.text();
-    const dataLines = body.split("\n").filter((l: string) => l.startsWith("data: "));
-    const jsonStr = dataLines.map((l: string) => l.slice(6)).join("");
-    expect(jsonStr.length).toBeGreaterThan(0);
-    const json = JSON.parse(jsonStr);
-    expect(json.result?.content).toBeDefined();
-    expect(json.result.content.length).toBeGreaterThan(0);
+    expect(res.status()).toBe(401);
+    const json = await res.json();
+    expect(json.error).toContain("API key");
   });
 });

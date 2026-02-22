@@ -6,7 +6,10 @@ import CopyBlock from "./CopyBlock";
 const CLOUD_CONFIG = `{
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp"
+      "url": "https://mcp.awesomecontext.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
     }
   }
 }`;
@@ -64,22 +67,35 @@ export default function QuickStart() {
               </span>
             </div>
             <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed mb-6">
-              No installation needed. Add the MCP server URL to your Claude Code
-              settings and start coding.
+              Sign up for a free API key, add it to your Claude Code settings,
+              and start coding.
             </p>
 
             {/* Step 1 */}
             <div className="mb-4">
               <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2">
-                1. Add to Claude Code settings
+                1. Get your API key
+              </div>
+              <p className="text-[13px] text-[var(--text-secondary)] mb-2">
+                <a href="/login" className="text-[var(--accent)] underline underline-offset-2 hover:opacity-80 transition-opacity">
+                  Sign up
+                </a>{" "}
+                and generate an API key from the dashboard.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="mb-4">
+              <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2">
+                2. Add to Claude Code settings
               </div>
               <CopyBlock code={CLOUD_CONFIG} />
             </div>
 
-            {/* Step 2 */}
+            {/* Step 3 */}
             <div>
               <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2">
-                2. Start coding
+                3. Start coding
               </div>
               <p className="text-[13px] text-[var(--text-secondary)]">
                 Claude will automatically call{" "}

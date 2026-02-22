@@ -23,13 +23,17 @@ AwesomeContext provides four MCP tools that Claude Code calls automatically duri
 
 ## Quick start (cloud — recommended)
 
-Add to Claude Code settings (no installation needed):
+1. Sign up at https://awesomecontext.awareness.market/login and get a free API key from the dashboard.
+2. Add to Claude Code settings:
 
 ```json
 {
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp"
+      "url": "https://mcp.awesomecontext.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
     }
   }
 }
@@ -135,7 +139,7 @@ Q: Does AwesomeContext work with Claude Code?
 A: Yes. AwesomeContext is built specifically as an MCP server for Claude Code. Add the server URL to your Claude Code settings and Claude will automatically call the tools during development.
 
 Q: Is it free?
-A: Yes. AwesomeContext is open source under the MIT license. The cloud version at mcp.awesomecontext.dev is free to use with no API key required.
+A: Yes. AwesomeContext is open source under the MIT license. The cloud version at mcp.awesomecontext.dev is free to use — sign up to get your API key.
 
 Q: What programming languages and frameworks does it support?
 A: AwesomeContext has rules for Python, TypeScript, JavaScript, Go, Rust, Java, React, Next.js, Django, FastAPI, and more. It detects your project's tech stack automatically.

@@ -75,13 +75,17 @@ When a developer starts a Claude Code session, AwesomeContext automatically load
 
 ### Cloud (Recommended)
 
-No installation needed. Add to Claude Code settings:
+1. Sign up at https://awesomecontext.awareness.market/login and get a free API key from the dashboard.
+2. Add to Claude Code settings:
 
 ```json
 {
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp"
+      "url": "https://mcp.awesomecontext.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
     }
   }
 }

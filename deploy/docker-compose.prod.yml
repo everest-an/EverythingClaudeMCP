@@ -24,7 +24,9 @@ services:
       - MCP_PORT=3000
       - AC_RETRIEVAL_ONLY=true
       - AC_BACKEND_URL=http://127.0.0.1:8420
-      # Auth: MCP server validates keys via Vercel-hosted landing
+      # Auth: require API key for all MCP tool calls
+      - AC_PUBLIC_MODE=false
+      - AC_STRICT_AUTH=true
       - AC_VALIDATE_KEY_URL=${AC_VALIDATE_KEY_URL}
       - AC_LOG_USAGE_URL=${AC_LOG_USAGE_URL}
       - INTERNAL_API_SECRET=${INTERNAL_API_SECRET}

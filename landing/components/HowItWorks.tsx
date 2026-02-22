@@ -25,12 +25,15 @@ export default function HowItWorks() {
               icon={<ConfigIcon />}
               number="01"
               title="Configure"
-              description="Add the AwesomeContext MCP server URL to your Claude Code settings. One line of JSON — that's it."
+              description="Sign up for a free API key, then add it to your Claude Code settings."
               code={`// .claude/settings.json
 {
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp"
+      "url": "https://mcp.awesomecontext.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer ac_..."
+      }
     }
   }
 }`}

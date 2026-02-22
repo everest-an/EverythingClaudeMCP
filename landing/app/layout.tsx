@@ -144,7 +144,7 @@ export default function RootLayout({
                   name: "How do I set up AwesomeContext with Claude Code?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Add the MCP server URL to your Claude Code settings: {\"mcpServers\": {\"awesome-context\": {\"url\": \"https://mcp.awesomecontext.dev/mcp\"}}}. Claude will automatically call get_rules when you start a new session. No installation or API keys required for the cloud version.",
+                    text: "Sign up for a free API key at awesomecontext.awareness.market, then add it to your Claude Code settings: {\"mcpServers\": {\"awesome-context\": {\"url\": \"https://mcp.awesomecontext.dev/mcp\", \"headers\": {\"Authorization\": \"Bearer YOUR_API_KEY\"}}}}. Claude will automatically call get_rules when you start a new session.",
                   },
                 },
                 {
@@ -160,7 +160,7 @@ export default function RootLayout({
                   name: "Is AwesomeContext free to use?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes. AwesomeContext is open source under the MIT license. The cloud-hosted version is free to use — just add the MCP server URL to your Claude Code settings. You can also self-host with Docker for full control.",
+                    text: "Yes. AwesomeContext is open source under the MIT license. The cloud-hosted version is free — sign up to get your API key. You can also self-host with Docker for full control.",
                   },
                 },
               ],

@@ -10,7 +10,7 @@ const FAQS = [
   },
   {
     q: "How do I set it up with Claude Code?",
-    a: 'Add the MCP server URL to your Claude Code settings: {"mcpServers": {"awesome-context": {"url": "https://mcp.awesomecontext.dev/mcp"}}}. Claude will automatically call get_rules when you start a new session. No installation or API keys required for the cloud version.',
+    a: 'Sign up for a free API key, then add it to your Claude Code settings: {"mcpServers": {"awesome-context": {"url": "https://mcp.awesomecontext.dev/mcp", "headers": {"Authorization": "Bearer YOUR_API_KEY"}}}}. Claude will automatically call get_rules when you start a new session.',
   },
   {
     q: "What MCP tools are included?",
@@ -18,7 +18,7 @@ const FAQS = [
   },
   {
     q: "Is it free?",
-    a: "Yes. AwesomeContext is open source under the MIT license. The cloud-hosted version at mcp.awesomecontext.dev is free to use. You can also self-host with Docker for full control over your rules.",
+    a: "Yes. AwesomeContext is open source under the MIT license. The cloud-hosted version is free — sign up to get your API key. You can also self-host with Docker for full control over your rules.",
   },
   {
     q: "What languages and frameworks does it support?",
@@ -66,7 +66,7 @@ function Accordion({ question, answer }: { question: string; answer: string }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between gap-4 p-5 text-left"
+        className="relative z-10 w-full flex items-center justify-between gap-4 p-5 text-left"
       >
         <span className="text-[15px] font-medium">{question}</span>
         <svg
