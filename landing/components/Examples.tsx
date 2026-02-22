@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import RevealOnScroll from "./RevealOnScroll";
+import CopyBlock from "./CopyBlock";
 
 const TABS = [
   {
@@ -156,21 +157,21 @@ export default function Examples() {
               <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2 px-1">
                 Request
               </div>
-              <div className="glass-card rounded-2xl p-5 h-full code-block border-0">
-                <pre className="whitespace-pre-wrap text-[13px] leading-relaxed">
+              <CopyBlock code={active.request} className="glass-card rounded-2xl p-5 h-full border-0">
+                <pre className="whitespace-pre-wrap text-[13px] leading-relaxed select-text">
                   <SyntaxHighlight code={active.request} />
                 </pre>
-              </div>
+              </CopyBlock>
             </div>
             <div>
               <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2 px-1">
                 Response
               </div>
-              <div className="glass-card rounded-2xl p-5 h-full code-block border-0">
-                <pre className="whitespace-pre-wrap text-[13px] leading-relaxed">
+              <CopyBlock code={active.response} className="glass-card rounded-2xl p-5 h-full border-0">
+                <pre className="whitespace-pre-wrap text-[13px] leading-relaxed select-text">
                   <SyntaxHighlight code={active.response} />
                 </pre>
-              </div>
+              </CopyBlock>
             </div>
           </div>
         </RevealOnScroll>

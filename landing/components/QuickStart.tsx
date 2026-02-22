@@ -1,6 +1,42 @@
 "use client";
 
 import RevealOnScroll from "./RevealOnScroll";
+import CopyBlock from "./CopyBlock";
+
+const CLOUD_CONFIG = `{
+  "mcpServers": {
+    "awesome-context": {
+      "url": "https://mcp.awesomecontext.dev/mcp"
+    }
+  }
+}`;
+
+const SELF_HOSTED_CLONE = `git clone https://github.com/everest-an/AwesomeContext.git
+cd AwesomeContext
+docker compose --profile cloud up -d`;
+
+const SELF_HOSTED_CONFIG = `{
+  "mcpServers": {
+    "awesome-context": {
+      "url": "http://localhost:3000/mcp"
+    }
+  }
+}`;
+
+const CLAUDE_MD = `# CLAUDE.md
+
+## MCP Tools — Auto-Invocation Rules
+
+ALWAYS call these tools from the "awesome-context" MCP server:
+
+1. **get_rules** — Call at the START of every conversation
+   with project_type matching this project's stack.
+
+2. **architect_consult** — Call BEFORE writing any code.
+   Pass your design intent as the "intent" parameter.
+
+3. **compliance_verify** — Call BEFORE committing code.
+   Pass the code diff as the "code" parameter.`;
 
 export default function QuickStart() {
   return (
@@ -37,18 +73,7 @@ export default function QuickStart() {
               <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2">
                 1. Add to Claude Code settings
               </div>
-              <div className="code-block p-4">
-                <pre className="text-[var(--text-secondary)] whitespace-pre-wrap text-[13px]">
-{`// .claude/settings.json
-{
-  "mcpServers": {
-    "awesome-context": {
-      "url": "https://awesomecontext.awareness.market/mcp"
-    }
-  }
-}`}
-                </pre>
-              </div>
+              <CopyBlock code={CLOUD_CONFIG} />
             </div>
 
             {/* Step 2 */}
@@ -85,14 +110,7 @@ export default function QuickStart() {
               <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2">
                 1. Clone and build
               </div>
-              <div className="code-block p-4">
-                <pre className="text-[var(--text-secondary)] whitespace-pre-wrap text-[13px]">
-{`git clone https://github.com/
-  everest-an/AwesomeContext.git
-cd AwesomeContext
-docker compose --profile cloud up -d`}
-                </pre>
-              </div>
+              <CopyBlock code={SELF_HOSTED_CLONE} />
             </div>
 
             {/* Step 2 */}
@@ -100,18 +118,7 @@ docker compose --profile cloud up -d`}
               <div className="text-[12px] font-medium text-[var(--text-tertiary)] tracking-wide uppercase mb-2">
                 2. Configure Claude Code
               </div>
-              <div className="code-block p-4">
-                <pre className="text-[var(--text-secondary)] whitespace-pre-wrap text-[13px]">
-{`// .claude/settings.json
-{
-  "mcpServers": {
-    "awesome-context": {
-      "url": "http://localhost:3000/mcp"
-    }
-  }
-}`}
-                </pre>
-              </div>
+              <CopyBlock code={SELF_HOSTED_CONFIG} />
             </div>
 
             {/* Step 3 */}
@@ -141,24 +148,7 @@ docker compose --profile cloud up -d`}
             project root. This tells Claude to always invoke AwesomeContext tools
             at the right moments.
           </p>
-          <div className="code-block p-4">
-            <pre className="text-[var(--text-secondary)] whitespace-pre-wrap text-[13px]">
-{`# CLAUDE.md
-
-## MCP Tools — Auto-Invocation Rules
-
-ALWAYS call these tools from the "awesome-context" MCP server:
-
-1. **get_rules** — Call at the START of every conversation
-   with project_type matching this project's stack.
-
-2. **architect_consult** — Call BEFORE writing any code.
-   Pass your design intent as the "intent" parameter.
-
-3. **compliance_verify** — Call BEFORE committing code.
-   Pass the code diff as the "code" parameter.`}
-            </pre>
-          </div>
+          <CopyBlock code={CLAUDE_MD} />
         </div>
         </RevealOnScroll>
       </div>

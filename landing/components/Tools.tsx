@@ -1,6 +1,7 @@
 "use client";
 
 import RevealOnScroll from "./RevealOnScroll";
+import CopyBlock from "./CopyBlock";
 
 export default function Tools() {
   return (
@@ -257,11 +258,11 @@ function ToolCard({
       </div>
 
       {/* Example */}
-      <div className="code-block p-4 mt-auto">
-        <pre className="text-[var(--text-secondary)] whitespace-pre-wrap text-[12px]">
+      <CopyBlock code={example} className="code-block p-4 mt-auto">
+        <pre className="text-[var(--text-secondary)] whitespace-pre-wrap text-[12px] select-text">
           {example}
         </pre>
-      </div>
+      </CopyBlock>
     </div>
   );
 }
