@@ -86,7 +86,7 @@ jobs:
           git pull origin master
 
           cd landing
-          npm ci --omit=dev
+          npm ci
           npx prisma generate
           npm run build
 
