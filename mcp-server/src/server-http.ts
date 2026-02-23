@@ -262,6 +262,7 @@ app.post("/mcp", async (req: Request, res: Response) => {
   // New session — create server + transport
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: () => randomUUID(),
+    enableJsonResponse: true,
   });
   const server = createMcpServer(req.authInfo);
   await server.connect(transport);
