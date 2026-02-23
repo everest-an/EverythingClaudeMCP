@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CopyBlock from "../CopyBlock";
 
 interface ApiKeyInfo {
   id: string;
@@ -12,6 +13,19 @@ interface ApiKeyInfo {
   _count: { usageLogs: number };
 }
 
+function configSnippet(key: string) {
+  return `{
+  "mcpServers": {
+    "awesome-context": {
+      "url": "https://awesomecontext.awareness.market/mcp",
+      "headers": {
+        "Authorization": "Bearer ${key}"
+      }
+    }
+  }
+}`;
+}
+
 export default function KeyManager({
   initialKeys,
 }: {
@@ -20,7 +34,6 @@ export default function KeyManager({
   const [keys, setKeys] = useState(initialKeys);
   const [newKey, setNewKey] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [keyName, setKeyName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -37,7 +50,6 @@ export default function KeyManager({
       const data = await res.json();
       if (res.ok) {
         setNewKey(data.key);
-        setCopied(false);
         setKeyName("");
         const listRes = await fetch("/api/keys");
         const listData = await listRes.json();
@@ -67,12 +79,6 @@ export default function KeyManager({
   async function revokeKey(id: string) {
     await fetch(`/api/keys/${id}`, { method: "DELETE" });
     setKeys((prev) => prev.filter((k) => k.id !== id));
-  }
-
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   }
 
   const activeKeys = keys.filter((k) => k.isActive);
@@ -109,24 +115,13 @@ export default function KeyManager({
         </p>
       )}
 
-      {/* Newly created key (show once) */}
+      {/* Newly created key — show ready-to-use config */}
       {newKey && (
         <div className="glass-card rounded-xl p-4 mb-6 border-[var(--accent)]">
-          <p className="text-[13px] text-[var(--accent)] font-medium mb-2">
-            Copy your API key now — it won&apos;t be shown again.
+          <p className="text-[13px] text-[var(--accent)] font-medium mb-3">
+            Your API key is ready — copy the config below and paste into your Claude Code settings. This key won&apos;t be shown again.
           </p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-[13px] bg-[var(--code-bg)] rounded-lg px-3 py-2 font-mono break-all">
-              {newKey}
-            </code>
-            <button
-              type="button"
-              onClick={() => copyToClipboard(newKey)}
-              className="px-3 py-2 rounded-lg glass text-[13px] shrink-0"
-            >
-              {copied ? "Copied!" : "Copy"}
-            </button>
-          </div>
+          <CopyBlock code={configSnippet(newKey)} />
         </div>
       )}
 
@@ -236,28 +231,43 @@ export default function KeyManager({
       )}
 
       {/* Usage instructions */}
-      <div className="glass-card rounded-xl p-5 mt-8">
-        <h3 className="text-[14px] font-semibold mb-3">
+      <ConfigBlock apiKey={newKey ?? "ac_your_key_here"} />
+    </div>
+  );
+}
+
+function ConfigBlock({ apiKey }: { apiKey: string }) {
+  const [copied, setCopied] = useState(false);
+  const code = configSnippet(apiKey);
+
+  function copy() {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="glass-card rounded-xl p-5 mt-8">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-[14px] font-semibold">
           How to use your API key
         </h3>
-        <p className="text-[13px] text-[var(--text-secondary)] mb-3">
-          Add the following to your Claude Code settings:
-        </p>
-        <div className="code-block p-4">
-          <pre className="text-[13px] text-[var(--text-secondary)] whitespace-pre-wrap">
-            {`// .claude/settings.json
-{
-  "mcpServers": {
-    "awesome-context": {
-      "url": "https://awesomecontext.awareness.market/mcp",
-      "headers": {
-        "Authorization": "Bearer ac_your_key_here"
-      }
-    }
-  }
-}`}
-          </pre>
-        </div>
+        <button
+          type="button"
+          onClick={copy}
+          className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-[var(--accent)] text-white hover:opacity-90 transition-opacity"
+        >
+          {copied ? "Copied!" : "Copy Config"}
+        </button>
+      </div>
+      <p className="text-[13px] text-[var(--text-secondary)] mb-3">
+        Add the following to your Claude Code settings:
+      </p>
+      <div className="code-block p-4" translate="no">
+        <pre className="text-[13px] text-[var(--text-secondary)] whitespace-pre-wrap select-text">
+          {code}
+        </pre>
       </div>
     </div>
   );
