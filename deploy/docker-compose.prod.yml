@@ -19,6 +19,8 @@ services:
     build:
       context: ..
       target: cloud
+    ports:
+      - "127.0.0.1:3100:3000"
     environment:
       - BACKEND_PORT=8420
       - MCP_PORT=3000
