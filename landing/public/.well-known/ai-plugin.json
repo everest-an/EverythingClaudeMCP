@@ -3,13 +3,13 @@
   "name_for_human": "AwesomeContext",
   "name_for_model": "awesome_context",
   "description_for_human": "MCP server that gives Claude Code instant access to 122+ engineering rules — architecture patterns, security checklists, coding standards, and compliance checks.",
-  "description_for_model": "AwesomeContext is an MCP (Model Context Protocol) server for Claude Code. It provides four tools: get_rules (loads project-specific coding standards), architect_consult (retrieves architecture patterns), skill_injector (loads 40+ development skills), and compliance_verify (checks code for security issues). Cloud endpoint: https://mcp.awesomecontext.dev/mcp. Free and open source under MIT license.",
+  "description_for_model": "AwesomeContext is an MCP (Model Context Protocol) server for Claude Code. It provides four tools: get_rules (loads project-specific coding standards), architect_consult (retrieves architecture patterns), skill_injector (loads 40+ development skills), and compliance_verify (checks code for security issues). Cloud endpoint: https://awesomecontext.awareness.market/mcp. Free and open source under MIT license.",
   "auth": {
     "type": "none"
   },
   "api": {
     "type": "mcp",
-    "url": "https://mcp.awesomecontext.dev/mcp"
+    "url": "https://awesomecontext.awareness.market/mcp"
   },
   "logo_url": "https://awesomecontext.awareness.market/icon.svg",
   "contact_email": "support@awesomecontext.dev",

@@ -6,7 +6,7 @@ import CopyBlock from "./CopyBlock";
 const CLOUD_CONFIG = `{
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp",
+      "url": "https://awesomecontext.awareness.market/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }

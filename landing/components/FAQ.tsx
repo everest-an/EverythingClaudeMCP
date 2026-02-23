@@ -10,7 +10,7 @@ const FAQS = [
   },
   {
     q: "How do I set it up with Claude Code?",
-    a: 'Sign up for a free API key, then add it to your Claude Code settings: {"mcpServers": {"awesome-context": {"url": "https://mcp.awesomecontext.dev/mcp", "headers": {"Authorization": "Bearer YOUR_API_KEY"}}}}. Claude will automatically call get_rules when you start a new session.',
+    a: 'Sign up for a free API key, then add it to your Claude Code settings: {"mcpServers": {"awesome-context": {"url": "https://awesomecontext.awareness.market/mcp", "headers": {"Authorization": "Bearer YOUR_API_KEY"}}}}. Claude will automatically call get_rules when you start a new session.',
   },
   {
     q: "What MCP tools are included?",

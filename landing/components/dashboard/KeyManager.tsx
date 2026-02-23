@@ -249,7 +249,7 @@ export default function KeyManager({
 {
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp",
+      "url": "https://awesomecontext.awareness.market/mcp",
       "headers": {
         "Authorization": "Bearer ac_your_key_here"
       }

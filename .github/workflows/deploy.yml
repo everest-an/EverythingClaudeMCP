@@ -137,4 +137,4 @@ jobs:
       - name: Check MCP
         if: always()
         run: |
-          curl -sf --max-time 10 https://mcp.awesomecontext.dev/health || echo "::warning::MCP health check failed"
+          curl -sf --max-time 10 https://awesomecontext.awareness.market/mcp/health || echo "::warning::MCP health check failed"

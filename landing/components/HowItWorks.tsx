@@ -30,7 +30,7 @@ export default function HowItWorks() {
 {
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp",
+      "url": "https://awesomecontext.awareness.market/mcp",
       "headers": {
         "Authorization": "Bearer ac_..."
       }

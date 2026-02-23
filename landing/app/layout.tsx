@@ -144,7 +144,7 @@ export default function RootLayout({
                   name: "How do I set up AwesomeContext with Claude Code?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Sign up for a free API key at awesomecontext.awareness.market, then add it to your Claude Code settings: {\"mcpServers\": {\"awesome-context\": {\"url\": \"https://mcp.awesomecontext.dev/mcp\", \"headers\": {\"Authorization\": \"Bearer YOUR_API_KEY\"}}}}. Claude will automatically call get_rules when you start a new session.",
+                    text: "Sign up for a free API key at awesomecontext.awareness.market, then add it to your Claude Code settings: {\"mcpServers\": {\"awesome-context\": {\"url\": \"https://awesomecontext.awareness.market/mcp\", \"headers\": {\"Authorization\": \"Bearer YOUR_API_KEY\"}}}}. Claude will automatically call get_rules when you start a new session.",
                   },
                 },
                 {

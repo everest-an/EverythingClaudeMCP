@@ -82,7 +82,7 @@ When a developer starts a Claude Code session, AwesomeContext automatically load
 {
   "mcpServers": {
     "awesome-context": {
-      "url": "https://mcp.awesomecontext.dev/mcp",
+      "url": "https://awesomecontext.awareness.market/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
@@ -141,5 +141,5 @@ Python, TypeScript, JavaScript, Go, Rust, Java, C#, Ruby, PHP, Swift, Kotlin, Re
 
 - Website: https://awesomecontext.awareness.market
 - GitHub: https://github.com/everest-an/AwesomeContext
-- MCP endpoint: https://mcp.awesomecontext.dev/mcp
+- MCP endpoint: https://awesomecontext.awareness.market/mcp
 - License: MIT
