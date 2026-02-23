@@ -1,10 +1,17 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default auth((req) => {
+/**
+ * Lightweight middleware that gates protected routes by checking for the
+ * presence of an Auth.js session cookie.  We intentionally avoid importing
+ * `auth()` here because it pulls in PrismaAdapter which cannot run on the
+ * Edge Runtime.  Full session validation (including role checks) happens in
+ * server components / API routes via `auth()`.
+ */
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Public routes
+  // Public routes — no auth required
   if (
     pathname === "/" ||
     pathname === "/login" ||
@@ -26,22 +33,19 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // Protected: must be authenticated
-  if (!req.auth) {
+  // Check for session cookie (secure variant on HTTPS, plain on HTTP)
+  const hasSession =
+    req.cookies.has("__Secure-authjs.session-token") ||
+    req.cookies.has("authjs.session-token");
+
+  if (!hasSession) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Admin routes
-  if (pathname.startsWith("/admin")) {
-    if (req.auth.user.role !== "admin") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-  }
-
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
