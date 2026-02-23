@@ -66,7 +66,7 @@ function Accordion({ question, answer }: { question: string; answer: string }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="relative z-10 w-full flex items-center justify-between gap-4 p-5 text-left"
+        className="w-full flex items-center justify-between gap-4 p-5 text-left"
       >
         <span className="text-[15px] font-medium">{question}</span>
         <svg
