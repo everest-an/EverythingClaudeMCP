@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "count": 122,
+  "count": 123,
   "embedding_dim": 1536,
   "entries": [
     {
@@ -978,6 +978,14 @@
       "description": "A comprehensive verification system for Claude Code sessions.",
       "token_count": 672,
       "content_hash": "55145c23ac247f6bad763277d4a0bdbdee164b9558f6ebe1a4b3906184a75294"
+    },
+    {
+      "module_id": "skills/defi-security",
+      "name": "defi-security",
+      "module_type": "skill",
+      "description": "Use this skill when auditing DeFi protocols, privacy-preserving systems, smart contracts, or cross-chain bridges. Covers A01-A23 smart contract vulnerabilities (reentrancy, flash loans, MEV, oracle ma",
+      "token_count": 6454,
+      "content_hash": "999802846daa9b93feac07592249b0d4db75c02ece8a53a7388099a54247fa89"
     }
   ]
 }
