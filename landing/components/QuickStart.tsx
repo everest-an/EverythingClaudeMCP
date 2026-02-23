@@ -90,6 +90,9 @@ export default function QuickStart() {
                 2. Add to Claude Code settings
               </div>
               <CopyBlock code={CLOUD_CONFIG} />
+              <p className="text-[12px] text-[var(--text-tertiary)] mt-2">
+                Replace <code className="text-[var(--accent)]">YOUR_API_KEY</code> with the key from your dashboard. An API key is required to use the cloud service.
+              </p>
             </div>
 
             {/* Step 3 */}

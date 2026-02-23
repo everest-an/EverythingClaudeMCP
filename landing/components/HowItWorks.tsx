@@ -25,7 +25,7 @@ export default function HowItWorks() {
               icon={<ConfigIcon />}
               number="01"
               title="Configure"
-              description="Sign up for a free API key, then add it to your Claude Code settings."
+              description="Sign up and get your API key from the dashboard. Add it to your Claude Code settings — the key is required for cloud access."
               code={`// .claude/settings.json
 {
   "mcpServers": {
