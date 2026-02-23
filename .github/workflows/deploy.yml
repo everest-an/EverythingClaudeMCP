@@ -95,7 +95,7 @@ jobs:
           # Remove stale PM2 processes that may conflict
           pm2 stop awesomecontext-landing 2>/dev/null || true
           pm2 delete awesomecontext-landing 2>/dev/null || true
-          pm2 restart landing 2>/dev/null || pm2 start npm --name landing -- start
+          PORT=3200 pm2 restart landing --update-env 2>/dev/null || PORT=3200 pm2 start npm --name landing -- start
           pm2 save
           SCRIPT
 
