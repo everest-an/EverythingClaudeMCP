@@ -6,6 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
+        disallow: ["/dashboard", "/admin", "/api/"],
       },
     ],
     sitemap: "https://awesomecontext.awareness.market/sitemap.xml",

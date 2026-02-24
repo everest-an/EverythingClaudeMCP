@@ -1,7 +1,8 @@
-/* v0.2.4 */
+/* v0.3.0 */
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const sans = Inter({
@@ -45,7 +46,18 @@ export const metadata: Metadata = {
     "token optimization",
     "AI pair programming",
     "AwesomeContext",
+    "vibe coding",
+    "cursor rules",
+    "claude code plugin",
+    "best MCP servers",
+    "coding rules engine",
+    "AI coding tools",
   ],
+  other: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION
+      ? { "google-site-verification": process.env.GOOGLE_SITE_VERIFICATION }
+      : {}),
+  },
   authors: [{ name: "AwesomeContext Team" }],
   creator: "AwesomeContext",
   publisher: "AwesomeContext",
@@ -89,6 +101,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#0a0a0f" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -169,6 +184,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${sans.variable} ${mono.variable} antialiased`} suppressHydrationWarning>
+        <GoogleAnalytics />
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>

@@ -48,6 +48,12 @@ export default function Footer() {
               >
                 Skills Catalog
               </Link>
+              <Link
+                href="/blog"
+                className="text-[13px] text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors"
+              >
+                Blog
+              </Link>
               <a
                 href="#quickstart"
                 className="text-[13px] text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors"

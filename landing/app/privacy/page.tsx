@@ -1,4 +1,9 @@
-export const metadata = { title: "Privacy" };
+export const metadata = {
+  title: "Privacy Policy",
+  description:
+    "AwesomeContext privacy policy. Learn how we handle your data when using our MCP server and Claude Code integration.",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return (

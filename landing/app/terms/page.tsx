@@ -1,4 +1,9 @@
-export const metadata = { title: "Terms" };
+export const metadata = {
+  title: "Terms of Service",
+  description:
+    "AwesomeContext terms of service. Usage terms for our MCP server, API keys, and Claude Code integration.",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return (

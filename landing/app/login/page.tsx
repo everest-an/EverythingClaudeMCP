@@ -4,7 +4,12 @@ import Aurora from "@/components/Aurora";
 import EmailLogin from "./EmailLogin";
 import LoginButtons from "./LoginButtons";
 
-export const metadata = { title: "Sign In" };
+export const metadata = {
+  title: "Sign In",
+  description:
+    "Sign in to AwesomeContext to get your free API key and start using MCP tools with Claude Code.",
+  alternates: { canonical: "/login" },
+};
 
 export default async function LoginPage({
   searchParams,

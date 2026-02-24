@@ -23,7 +23,11 @@ export const metadata: Metadata = {
     "database migrations",
     "code review AI",
     "compliance check",
+    "vibe coding tools",
+    "cursor rules alternative",
+    "best MCP tools for coding",
   ],
+  alternates: { canonical: "/skills" },
 };
 
 interface Skill {
