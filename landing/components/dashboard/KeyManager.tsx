@@ -1,7 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import CopyBlock from "../CopyBlock";
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [text]);
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="inline-flex items-center ml-2 px-1.5 py-0.5 rounded text-[11px] text-[var(--text-tertiary)] hover:text-[var(--accent)] hover:bg-[var(--glass-bg)] transition-colors"
+      title="Copy key prefix"
+    >
+      {copied ? (
+        <svg className="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+      ) : (
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+      )}
+    </button>
+  );
+}
 
 interface ApiKeyInfo {
   id: string;
@@ -183,9 +209,12 @@ export default function KeyManager({
                     </button>
                   )}
 
-                  <code className="text-[13px] font-mono text-[var(--text-tertiary)] block mt-0.5">
-                    {key.keyPrefix}...
-                  </code>
+                  <span className="flex items-center mt-0.5">
+                    <code className="text-[13px] font-mono text-[var(--text-tertiary)]">
+                      {key.keyPrefix}...
+                    </code>
+                    <CopyButton text={key.keyPrefix} />
+                  </span>
                   <div className="text-[12px] text-[var(--text-tertiary)] mt-1.5">
                     {key._count.usageLogs} calls
                     {key.lastUsedAt &&
@@ -221,10 +250,13 @@ export default function KeyManager({
               <div className="text-[13px] text-[var(--text-tertiary)]">
                 {key.name}
               </div>
-              <code className="text-[12px] font-mono text-[var(--text-tertiary)]">
-                {key.keyPrefix}...
-              </code>
-              <span className="ml-2 text-[11px] text-red-400">revoked</span>
+              <span className="inline-flex items-center">
+                <code className="text-[12px] font-mono text-[var(--text-tertiary)]">
+                  {key.keyPrefix}...
+                </code>
+                <CopyButton text={key.keyPrefix} />
+                <span className="ml-1 text-[11px] text-red-400">revoked</span>
+              </span>
             </div>
           ))}
         </div>

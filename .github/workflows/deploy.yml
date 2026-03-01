@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy to Production Server
 
 on:
   push:
@@ -63,7 +63,7 @@ jobs:
           npm run build
 
   # ----------------------------------------------------------------
-  # 3. Deploy to EC2 via SSH
+  # 3. Deploy to production server via SSH
   # ----------------------------------------------------------------
   deploy:
     runs-on: ubuntu-latest
@@ -134,7 +134,7 @@ jobs:
         run: |
           curl -sf --max-time 10 https://awesomecontext.awareness.market || echo "::warning::Landing health check failed"
 
-      - name: Check MCP
+      - name: Check MCP health
         if: always()
         run: |
           curl -sf --max-time 10 https://awesomecontext.awareness.market/health || echo "::warning::MCP health check failed"
