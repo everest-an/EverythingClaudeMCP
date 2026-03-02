@@ -45,7 +45,12 @@ server.tool(
     "coding rules, security guidelines, and best practices. Detects the project's tech stack " +
     "(python, typescript, golang, react, django, etc.) and returns the most relevant rules " +
     "that should be followed throughout the session. This is your primary knowledge source " +
-    "for coding standards.",
+    "for coding standards.\n\n" +
+    "To detect project_type: check for package.json/tsconfig.json → 'typescript' or 'react' or 'nextjs'; " +
+    "pyproject.toml/requirements.txt → 'python' or 'django' or 'fastapi'; go.mod → 'golang'; " +
+    "Cargo.toml → 'rust'; pom.xml/build.gradle → 'java'; Dockerfile → 'docker'; " +
+    "multiple stacks → 'fullstack'.\n\n" +
+    "Do NOT call again in the same session unless the user switches to a different tech stack.",
   {
     project_type: z
       .string()
@@ -79,7 +84,12 @@ server.tool(
     "new features, API design, database schema, or system architecture. Returns " +
     "production-grade patterns, security guidelines, and best practices from " +
     "internalized engineering rules. Do NOT skip this step — poor architecture " +
-    "decisions are expensive to fix later.",
+    "decisions are expensive to fix later.\n\n" +
+    "TRIGGER when: adding a new feature, new API endpoint, new React component, " +
+    "new data model, authentication/authorization design, choosing between multiple " +
+    "architectural approaches, service design, or database schema design.\n\n" +
+    "DO NOT TRIGGER for: bug fixes, simple refactoring, single-line changes, " +
+    "adding tests to existing code, or trivial tasks with an obvious implementation.",
   {
     intent: z
       .string()
@@ -116,8 +126,22 @@ server.tool(
   "ALWAYS call when the task involves specific domains: testing (tdd-workflow), " +
     "security (security-review), Docker (docker-patterns), APIs (api-design), " +
     "database (database-migrations), code review (code-review), or any specialized " +
-    "engineering practice. Has 40+ skills covering all major development areas. " +
-    "Pass 'list' as skill_id to see all available skills.",
+    "engineering practice. Has 40+ skills covering all major development areas.\n\n" +
+    "Common skill_ids:\n" +
+    "  skills/tdd-workflow        — writing tests with TDD methodology\n" +
+    "  skills/security-review     — security audit and vulnerability checks\n" +
+    "  skills/defi-security       — DeFi/smart contract security (Solidity)\n" +
+    "  skills/docker-patterns     — containerization and Docker best practices\n" +
+    "  skills/api-design          — REST/GraphQL API design patterns\n" +
+    "  skills/database-migrations — database schema migration patterns\n" +
+    "  skills/code-review         — code review checklist and standards\n" +
+    "  skills/backend-patterns    — backend service architecture patterns\n" +
+    "  skills/frontend-patterns   — frontend component and state patterns\n\n" +
+    "Pass 'list' as skill_id to see all 40+ available skills.\n\n" +
+    "Use architect_consult for high-level design decisions. " +
+    "Use skill_injector for executing a specific specialized workflow.\n\n" +
+    "DO NOT TRIGGER when: architect_consult already covers the domain, " +
+    "or the task needs no specialized domain knowledge.",
   {
     skill_id: z
       .string()
@@ -154,7 +178,12 @@ server.tool(
   "ALWAYS call BEFORE finalizing or committing code changes. Checks code against " +
     "coding rules for style, security vulnerabilities, performance anti-patterns, " +
     "and project standards. Returns specific violations and fix suggestions. " +
-    "Skipping this step risks shipping non-compliant code.",
+    "Skipping this step risks shipping non-compliant code.\n\n" +
+    "TRIGGER: After writing or editing any significant block of code, pass the " +
+    "written code as the `code` parameter before presenting the final result to the user.\n\n" +
+    "DO NOT TRIGGER for: documentation changes, config file edits, one-line fixes, " +
+    "or code already verified in the same session.\n\n" +
+    "Set rules_filter to match the language: 'typescript', 'python', 'golang', or 'common' (default).",
   {
     code: z
       .string()
