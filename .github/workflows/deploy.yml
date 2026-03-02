@@ -83,7 +83,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'SCRIPT'
           set -e
-          cd /home/ec2-user/EverythingClaudeMCP
+          cd ~/EverythingClaudeMCP
           git pull origin master
 
           cd landing
@@ -105,7 +105,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'SCRIPT'
           set -e
-          cd /home/ec2-user/EverythingClaudeMCP
+          cd ~/EverythingClaudeMCP
           git pull origin master
 
           cd deploy
